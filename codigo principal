@@ -1,0 +1,167 @@
+//detallar el proyecto y nombres
+
+//CONTROL MOTOR PASO A PASO
+                       
+#define PIN_MARRON        11
+#define PIN_AMARILLO      10
+#define PIN_NEGRO         9
+#define PIN_GRIS          8
+
+#define CONFIG_MARRON             pinMode(PIN_MARRON, OUTPUT)
+#define CONFIG_AMARILLO            pinMode(PIN_AMARILLO, OUTPUT)
+#define CONFIG_NEGRO              pinMode(PIN_NEGRO, OUTPUT)
+#define CONFIG_GRIS               pinMode(PIN_GRIS, OUTPUT)
+
+#define PRENDER_MARRON1(x)               digitalWrite(PIN_MARRON, x)
+#define PRENDER_AMARILLO2(x)               digitalWrite(PIN_AMARILLO, x)
+#define PRENDER_NEGRO3(x)               digitalWrite(PIN_NEGRO, x)
+#define PRENDER_GRIS4(x)               digitalWrite(PIN_GRIS, x)
+
+//   SENTIDO HORARIO y si invierte sentido antihorario 
+// MARRON _ AMARILLO _ NEGRO _ NARANJA     motor mediano
+
+// 40 PASOS 360     dividido 4 step = 10  motor 12v
+
+
+
+//#include <DHT.h>    // Librería para el sensor de temperatura y humedad
+//#define DHTPIN 2    // Pin digital al que está conectado el sensor DHT
+//#define DHTTYPE DHT11   // Tipo de sensor DHT (DHT11 o DHT22)
+//DHT dht(DHTPIN, DHTTYPE);
+
+
+#define FOTORESISTOR_PIN             A1    
+#define CONFIG_FOTORESISTOR          pinMode(FOTORESISTOR_PIN, INPUT)  
+#define LEER_FOTORESISTOR          analogRead(FOTORESISTOR_PIN)
+
+
+#define FOTORESISTOR2_PIN             A2    // ldr pelado
+#define CONFIG_FOTORESISTOR2          pinMode(FOTORESISTOR2_PIN, INPUT)  
+#define LEER_FOTORESISTOR2          analogRead(FOTORESISTOR2_PIN)
+
+#define INTERVALO                   1800
+
+#define LED                        LED_BUILTIN
+#define CONFIG_LED                 pinMode(LED, OUTPUT)
+#define PRENDER                    digitalWrite(LED, HIGH)
+#define APAGAR                digitalWrite(LED, LOW)
+
+bool mucha_luz = 0;
+unsigned char pasos_der=0;
+
+void setup() {
+  Serial.begin(9600);
+  CONFIG_FOTORESISTOR;
+  CONFIG_FOTORESISTOR2;
+
+  CONFIG_LED;
+  
+  //dht.begin(); // Inicializa la librería, el sensor y establece la configuración por defecto que pueda tener el dht
+
+
+
+  
+  CONFIG_MARRON;
+  CONFIG_AMARILLO;
+  CONFIG_NEGRO;
+  CONFIG_GRIS;
+  PRENDER_MARRON1(0);
+  PRENDER_AMARILLO2(0);
+  PRENDER_NEGRO3(0);
+  PRENDER_GRIS4(0);
+}
+
+void loop(){
+
+Fotoresistor();
+Fotoresistor2();
+Giro_Derecha();
+}
+
+
+
+
+void Fotoresistor(){
+  // menor valor mas luz
+  static unsigned long antMillis = 0;        
+  if(millis() - antMillis < INTERVALO) return;
+  antMillis = millis();
+
+  int dato = LEER_FOTORESISTOR;
+  if(dato < 200) mucha_luz = 1;
+  else mucha_luz = 0;
+  Serial.println("EL LDR DE NOSOTROS ");
+  Serial.println(dato);
+  if(mucha_luz) { PRENDER; Giro_Izquierda(); }
+  else APAGAR;
+}
+void Fotoresistor2(){
+  //
+  static unsigned long antMillis = 0;        
+  if(millis() - antMillis < INTERVALO) return;
+  antMillis = millis();
+
+  int dato1 = LEER_FOTORESISTOR2;
+  if(dato1 > 850) mucha_luz = 1;
+  else mucha_luz = 0;
+
+  Serial.println("EL LDR DEL QUIQUE ");
+  Serial.println(dato1);
+
+  if(mucha_luz) { PRENDER;  pasos_der=4; } 
+  else APAGAR;
+}
+
+
+void SensorDTH{
+  float temperature = dht.readTemperature();       ////Lee la temperatura en gados celsius
+  readTemperature() Retorna la temperatura en rango -40 ~ 80 grados Celsius
+  float f = dht.readTemperature(true);   // Lee la temperatura en grados Fahrenheit (isFahrenheit = true)
+
+  float humidity = dht.readHumidity(); //Con esta instrucción podemos obtener la humedad relativa del ambiente, nos retorna un valor de 0 a 100.
+  // Retorna un valor de 0 a 100, indicando el porcentaje de humedad del ambiente
+  //Retorna la temperatura en formato punto flotante.
+}
+
+void Giro_Derecha()
+  {
+  static unsigned long millis_ant=0;
+  
+  //Dar 4 pasos, esperando 25ms entre paso y paso
+  if(!pasos_der) return;
+
+  if(millis()-millis_ant < 25) return;
+  millis_ant=millis();
+
+  AvanzarPaso();
+  pasos_der--;
+  }
+
+void AvanzarPaso()
+  {
+  static char paso=0;
+
+   switch(paso)
+    {
+    case 0: PRENDER_MARRON1(0);   PRENDER_AMARILLO2(0);   PRENDER_NEGRO3(1);   PRENDER_GRIS4(1);   break;
+    case 1: PRENDER_MARRON1(1);   PRENDER_AMARILLO2(0);   PRENDER_NEGRO3(0);   PRENDER_GRIS4(1);   break;
+    case 2: PRENDER_MARRON1(1);   PRENDER_AMARILLO2(1);   PRENDER_NEGRO3(0);   PRENDER_GRIS4(0);   break;
+    case 3: PRENDER_MARRON1(0);   PRENDER_AMARILLO2(1);   PRENDER_NEGRO3(1);   PRENDER_GRIS4(0);   break;
+    default: paso=-1; break;
+    }
+  paso++;
+  if(paso>3) paso=0;
+    
+  }
+
+void Giro_Izquierda(){
+
+   for (int i=0; i<1; i++){
+   PRENDER_MARRON1(1);   PRENDER_AMARILLO2(1);   PRENDER_NEGRO3(0);   PRENDER_GRIS4(0);   delay(25); 
+   PRENDER_MARRON1(1);   PRENDER_AMARILLO2(0);   PRENDER_NEGRO3(0);   PRENDER_GRIS4(1);   delay(25);
+   PRENDER_MARRON1(0);   PRENDER_AMARILLO2(0);   PRENDER_NEGRO3(1);   PRENDER_GRIS4(1);   delay(25);
+   PRENDER_MARRON1(0);   PRENDER_AMARILLO2(1);   PRENDER_NEGRO3(1);   PRENDER_GRIS4(0);   delay(25);
+  }
+}
+
+
