@@ -19,6 +19,9 @@
 
 //   SENTIDO HORARIO y si invierte sentido antihorario 
 // MARRON _ AMARILLO _ NEGRO _ NARANJA     motor mediano
+// marron, negro= bobina 1
+//amrillo, naranja= bobina 2
+//rojo, rojo= vcc
 
 // 40 PASOS 360     dividido 4 step = 10  motor 12v
 
