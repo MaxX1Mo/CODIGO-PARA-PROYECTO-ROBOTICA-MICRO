@@ -57,67 +57,6 @@ DHT dht(DHTPIN, DHTTYPE);
 #define CONFIG_FOTORESISTOR2          pinMode(FOTORESISTOR2_PIN, INPUT)  
 #define LEER_FOTORESISTOR2            analogRead(FOTORESISTOR2_PIN)
 
-#define INTERVALO                     1800
-
-
-/*CONFIGURACION DE SENSOR DE HUMEDAD SUELO
-Los valores obtenidos van desde 0 sumergido en agua, a 1023 en el aire (o en un suelo muy seco). 
-Un suelo ligeramente húmero daría valores típicos de 600-700. Un suelo seco tendrá valores de 800-1023.
-La salida digital dispara cuando el valor de humedad supera el umbral definido como predeterminado.
-Por lo tanto, se obtendra una señal LOW cuando el suelo no está húmedo, y HIGH cuando la humedad supera el valor de predefinido.
-*/
-#define PIN_HUMEDAD                  3
-#define CONFIG_HUM                   pinMode(PIN_HUMEDAD, INPUT)
-#define LEER_HUMEDAD                 digitalRead(PIN_HUMEDAD)
-
-//CONFIGURACION BOMBA DE AGUA PARA EL RIEGO
-#define PIN_RIEGO                    5
-#define CONFIG_RIEGO                 pinMode(PIN_RIEGO, OUTPUT)
-#define ACTUALIZAR_RIEGO(x)          digitalWrite(PIN_RIEGO, x)
-
-
-//LED_TEST
-#define INTERVALO_LED_TEST           250 //Function LedTest()
-#define LED_TEST                     LED_BUILTIN
-#define CONFIG_LED_TEST              pinMode(LED_TEST, OUTPUT)
-#define ACTUALIZAR_LED_TEST(x)       digitalWrite(LED_TEST, x)
-
-
-
-
-
-bool mucha_luz_1 = 0;
-bool mucha_luz_2 = 0;
-unsigned char pasos_der=0;
-
-void setup() {
-  Serial.begin(9600);
-  CONFIG_FOTORESISTOR;
-  CONFIG_FOTORESISTOR2;
-  
-  CONFIG_B1;
-  CONFIG_B2;
-  CONFIG_B3;
-  CONFIG_B4;
-  PRENDER_B1(0);
-  PRENDER_B2(0);
-  PRENDER_B3(0);
-  PRENDER_B4(0);
-
-  //ledtest
-  CONFIG_LED_TEST;
-  ACTUALIZAR_LED_TEST(0);
-}
-
-void loop(){
-
-Fotoresistor1();
-Fotoresistor2();
-Giro_Motor();
-Riego();
-LedTest();
-}
-
 
 
 
