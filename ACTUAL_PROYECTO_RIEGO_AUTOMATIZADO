@@ -1,3 +1,4 @@
+
 /* Integrantes :  Maximo Olguin Muñoz y Jonatan Peredo
 
 ----------- PROYECTO RIEGO AUTOMATIZADO PARA MACETAS --------------------
@@ -20,7 +21,7 @@ arduino mega
 
 
 //sensor de temperatura y humedad ambiente DTH11
-#include <DHT.h>    // Librería para el sensor de temperatura y humedad
+#include "DHT.h"   // Librería para el sensor de temperatura y humedad
 #define DHTPIN 2    // Pin digital al que está conectado el sensor DHT
 #define DHTTYPE DHT11   // Tipo de sensor DHT (DHT11 o DHT22)
 DHT dht(DHTPIN, DHTTYPE);
@@ -67,9 +68,12 @@ Por lo tanto, se obtendra una señal LOW cuando el suelo no está húmedo, y HIG
 
 
 //variables booleanas 
-bool mucha_luz_1 = 0; //ldr
+bool mucha_luz = 0; //ldr
 bool calor = 0;
 bool frio = 0;
+
+bool estado_riego = 0;
+bool humedad_suelo = 0; 
 
 
 void setup() {
@@ -91,6 +95,13 @@ MostrarValores();
 LedTest();
 }
 
+void Riego(){
+  if(mucha_luz == 1 || frio == 1) return;
+
+  if(humedad_suelo == 0) estado_riego = 1;
+  else estado_riego = 0;
+  ACTUALIZAR_RIEGO(estado_riego);
+}
 
 void DTH11(){
   //dth11
@@ -102,11 +113,7 @@ void DTH11(){
   else calor = 0;
   if(temperatura < MIN_TEMP) frio = 1;
   else frio = 0;
-
-  
 }
-
-
 
 
 void Fotoresistor(){
@@ -116,8 +123,8 @@ void Fotoresistor(){
   antMillis = millis();
 
   int dato = LEER_FOTORESISTOR;
-  if(dato < MAX_LUZ) mucha_luz1 = 1;
-  else mucha_luz1 = 0;
+  if(dato < MAX_LUZ) mucha_luz = 1;
+  else mucha_luz = 0;
   
  // Serial.println("DATO DEL LDR: ");
   //Serial.println(dato);
@@ -127,7 +134,7 @@ void Fotoresistor(){
 void HumedadSuelo(){
 
   bool humedad_suelo = 0;
-  if(LEER_HUMEDAD) humedad_suelo = 0;          //si es true(1) detecta humedad y si es false(0) detecta seco
+  if(LEER_HUMEDAD_SUELO) humedad_suelo = 0;          //si es true(1) detecta humedad y si es false(0) detecta seco
   else humedad_suelo = 1;
   //ACTUALIZAR_RIEGO(humedad_suelo);
 }
@@ -135,14 +142,14 @@ void HumedadSuelo(){
 
 void MostrarValores(){
   if(!Serial.available()) return;
-  String dato = Serial.readString();
+  char comando = Serial.read();
   bool mostrar = 0;
-  switch(dato){
-    case "mostrar":
-    case "MOSTRAR":  mostrar = 1;       break;
-    case "detener":
-    case "DETENER":  mostrar = 0;       break;
-    default: Serial.println("Los comandos para mostrar los datos es MOSTRAR, o para dejar de mostrar los datos es DETENER"); break;
+  switch(comando){
+    case 'm':
+    case 'M':  mostrar = 1;       break;
+    case 'd':
+    case 'D':  mostrar = 0;       break;
+    default: Serial.println("Los comandos para mostrar los datos es M, o para dejar de mostrar los datos es D"); break;
   }
 
   if(mostrar == 0) return;
@@ -152,7 +159,7 @@ void MostrarValores(){
   antMillis = millis();
 
   //dth11
-    float humedad = dht.readHumidity();
+  float humedad = dht.readHumidity();
   float temperatura = dht.readTemperature();
   if (isnan(humedad) || isnan(temperatura)) { // Verifica si la lectura del sensor fue exitosa
     Serial.println("Error al leer el sensor DHT11");
@@ -174,15 +181,13 @@ void MostrarValores(){
 
   // ldr fotoresistor
   int dato = LEER_FOTORESISTOR;
-  if(dato < 200) mucha_luz1 = 1;
-  else mucha_luz1 = 0;
+
   
   Serial.println("Datos del LDR: ");
   Serial.println(dato);
-  if(mucha_luz1) Serial.println("Mucha Luz");
+  if(mucha_luz) Serial.println("Mucha Luz");
   else Serial.println("Poca Luz");
   Serial.println(" ");
-
 }
 
 void LedTest()
