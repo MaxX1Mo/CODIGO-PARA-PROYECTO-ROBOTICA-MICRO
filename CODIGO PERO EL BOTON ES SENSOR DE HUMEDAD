@@ -48,7 +48,7 @@ Por lo tanto, se obtendra una señal LOW cuando el suelo no está húmedo, y HIG
 #define LEER_HUMEDAD_SUELO                digitalRead(PIN_HUM_SUELO)
 
 //CONFIGURACION BOMBA DE AGUA PARA EL RIEGO
-#define PIN_RIEGO                    5
+#define PIN_RIEGO                    12
 #define CONFIG_RIEGO                 pinMode(PIN_RIEGO, OUTPUT)
 #define ACTUALIZAR_RIEGO(x)          digitalWrite(PIN_RIEGO, x)
 
@@ -64,7 +64,7 @@ Por lo tanto, se obtendra una señal LOW cuando el suelo no está húmedo, y HIG
 #define MAX_TEMP             38
 #define MIN_TEMP             5
 
-#define MAX_LUZ              200
+#define MAX_LUZ              100
 
 
 //variables booleanas 
@@ -89,6 +89,7 @@ void setup() {
 
 void loop(){
 DTH11();
+Riego();
 Fotoresistor();
 HumedadSuelo();
 MostrarValores();
@@ -97,10 +98,10 @@ LedTest();
 
 void Riego(){
   if(mucha_luz == 1 || frio == 1) return;   // si hay mucha luz y si la temperatura es muy fria, no sigue el codigo
-
+  
   //bool humedad_suelo = LEER_HUMEDAD_SUELO;
-  if(humedad_suelo == 0) estado_riego = 1;
-  else estado_riego = 0;
+  if(humedad_suelo == 0) { Serial.println("RIEGO ANDANDO"); estado_riego = 1; }
+  else { Serial.println("RIEGO APAGADO "); estado_riego = 0; }
   ACTUALIZAR_RIEGO(estado_riego);
 }
 
@@ -176,7 +177,7 @@ void MostrarValores(){
  
   //sensor humedad suelo
 
-  if(humedad_suelo) Serial.println("Se detecto humedad");
+  if(humedad_suelo == 1) Serial.println("Se detecto humedad");
   else Serial.println("Se detecto suelo seco");
   
 
