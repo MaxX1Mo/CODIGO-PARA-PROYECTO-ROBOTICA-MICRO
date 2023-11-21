@@ -78,7 +78,7 @@ bool humedad_suelo = 0;
 
 void setup() {
   Serial.begin(9600);
-  CONFIG_FOTORESISTOR;
+  CONFIG_FOTORESISTOR();
   CONFIG_HUM;
   CONFIG_RIEGO;
   dht.begin();  // Corrige el error tipográfico aquí
