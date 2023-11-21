@@ -78,7 +78,8 @@ bool humedad_suelo = 0;
 
 void setup() {
   Serial.begin(9600);
-  CONFIG_FOTORESISTOR();
+  
+  CONFIG_FOTORESISTOR;
   CONFIG_HUM;
   CONFIG_RIEGO;
   dht.begin();  // Corrige el error tipográfico aquí
@@ -97,11 +98,12 @@ LedTest();
 }
 
 void Riego(){
-  if(mucha_luz == 1 || frio == 1) return;   // si hay mucha luz y si la temperatura es muy fria, no sigue el codigo
   
-  //bool humedad_suelo = LEER_HUMEDAD_SUELO;
-  if(humedad_suelo == 0) { Serial.println("RIEGO ANDANDO"); estado_riego = 1; }
-  else { Serial.println("RIEGO APAGADO "); estado_riego = 0; }
+  if(mucha_luz == 1 || frio == 1) { estado_riego = 1; } // si hay mucha luz y si la temperatura es muy fria, no sigue el codigo
+  
+  
+  if(humedad_suelo == 1 ) { Serial.println("RIEGO ANDANDO"); estado_riego = 0; }
+  else { Serial.println("RIEGO APAGADO "); estado_riego = 1; }
   ACTUALIZAR_RIEGO(estado_riego);
 }
 
@@ -177,7 +179,7 @@ void MostrarValores(){
  
   //sensor humedad suelo
 
-  if(humedad_suelo == 1) Serial.println("Se detecto humedad");
+  if(humedad_suelo == 0) Serial.println("Se detecto humedad");
   else Serial.println("Se detecto suelo seco");
   
 
